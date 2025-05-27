@@ -146,7 +146,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
-            // TODO: Add any drawing code that uses hdc here...
+            
+            // Set the text color to black
+            SetTextColor(hdc, RGB(0, 0, 0));
+            
+            // Set the background mode to transparent
+            SetBkMode(hdc, TRANSPARENT);
+            
+            // Draw the text
+            TextOutW(hdc, 10, 10, L"Hello World", 11);
+            
             EndPaint(hWnd, &ps);
         }
         break;
