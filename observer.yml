@@ -1,0 +1,6 @@
+component:
+  name: minimal-windows-example
+  version: 1.0.0
+  license: MIT
+  description: A minimal Windows example
+  url: https://github.com/observer-project/minimal-windows-example
