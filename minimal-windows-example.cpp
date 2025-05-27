@@ -3,6 +3,12 @@
 
 #include "framework.h"
 #include "minimal-windows-example.h"
+#include <openssl/rand.h>
+#include <openssl/err.h>
+#include <string>
+#include <sstream>
+#include <iomanip>
+#include <vector>
 
 #define MAX_LOADSTRING 100
 
@@ -16,6 +22,23 @@ ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
+
+std::wstring GenerateRandomString(size_t length) {
+    // Generate random bytes
+    std::vector<unsigned char> random_bytes(length);
+    if (RAND_bytes(random_bytes.data(), static_cast<int>(length)) != 1) {
+        // Handle error
+        return L"Error generating random string";
+    }
+
+    // Convert to hex string
+    std::wstringstream ss;
+    for (size_t i = 0; i < length; ++i) {
+        ss << std::hex << std::setw(2) << std::setfill(L'0') 
+           << static_cast<int>(random_bytes[i]);
+    }
+    return ss.str();
+}
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -41,6 +64,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_MINIMALWINDOWSEXAMPLE));
 
     MSG msg;
+
+    // Initialize OpenSSL
+    if (RAND_status() != 1) {
+        // Handle error
+        return 1;
+    }
 
     // Main message loop:
     while (GetMessage(&msg, nullptr, 0, 0))
@@ -147,6 +176,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
             
+            // Generate a random string
+            std::wstring randomStr = GenerateRandomString(16); // 16 bytes = 32 hex characters
+            
             // Set the text color to black
             SetTextColor(hdc, RGB(0, 0, 0));
             
@@ -154,7 +186,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             SetBkMode(hdc, TRANSPARENT);
             
             // Draw the text
-            TextOutW(hdc, 10, 10, L"Hello World", 11);
+            TextOutW(hdc, 10, 10, randomStr.c_str(), static_cast<int>(randomStr.length()));
             
             EndPaint(hWnd, &ps);
         }
