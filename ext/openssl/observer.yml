@@ -3,4 +3,5 @@ component:
   version: 3.5.0
   license: Apache-2.0
   description: OpenSSL is a cryptography library that provides a wide range of cryptographic functions.
-  url: https://www.openssl.org/
+  url: 
+    - https://www.openssl.org/
