@@ -1,0 +1,47 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  # Build configuration and platform for the MSBuild step
+  BuildConfiguration: Release
+  BuildPlatform: x64
+
+steps:
+# Checkout source (performed automatically, but kept explicit for clarity)
+- checkout: self
+
+# Build the Visual Studio solution
+- task: VSBuild@1
+  displayName: 'Build solution'
+  inputs:
+    solution: 'minimal-windows-example.sln'
+    vsVersion: 'latest'
+    msbuildArgs: '/p:Configuration=$(BuildConfiguration) /p:Platform=$(BuildPlatform)'
+    platform: '$(BuildPlatform)'
+    configuration: '$(BuildConfiguration)'
+
+# Generate SBOM for the full workspace (including vendored dependencies)
+#- script: |
+#    observer --debug fs --vendor "$(System.DefaultWorkingDirectory)/ext" "$(System.DefaultWorkingDirectory)"
+#  displayName: 'Generate SBOM with Observer'
+
+# Copy the produced executable (and any generated PDB) plus the required OpenSSL DLLs into the staging directory
+- task: CopyFiles@2
+  displayName: 'Stage build outputs'
+  inputs:
+    SourceFolder: '$(System.DefaultWorkingDirectory)'
+    Contents: |
+      **/$(BuildPlatform)/$(BuildConfiguration)/**/*.exe
+      **/$(BuildPlatform)/$(BuildConfiguration)/**/*.pdb
+      ext/openssl/bin/*.dll
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+# Publish the staged files as a pipeline artifact
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish artifacts'
+  inputs:
+    pathToPublish: '$(Build.ArtifactStagingDirectory)'
+    artifactName: 'drop' 
