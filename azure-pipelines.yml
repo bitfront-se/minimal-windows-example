@@ -25,7 +25,7 @@ steps:
 
 # Generate SBOM for the full workspace (including vendored dependencies)
 #- script: |
-#    observer --debug fs --vendor "$(System.DefaultWorkingDirectory)/ext" "$(System.DefaultWorkingDirectory)"
+#    observer --debug fs -o "$(Build.ArtifactStagingDirectory)/minimal-windows-example.cdx.json" --vendor "$(System.DefaultWorkingDirectory)/ext" "$(System.DefaultWorkingDirectory)"
 #  displayName: 'Generate SBOM with Observer'
 
 # Copy the produced executable (and any generated PDB) plus the required OpenSSL DLLs into the staging directory
